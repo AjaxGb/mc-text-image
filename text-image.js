@@ -124,9 +124,9 @@ function updateOutput() {
     canvasOutline.style.width = (parsedW || w) + 'px';
     canvasOutline.style.height = (parsedH || h) + 'px';
     if (w === realW && h === realH) {
-    	sizeOut.innerText = `${w}x${h}`;
+    	sizeOut.innerText = `${w}×${h}`;
     } else {
-    	sizeOut.innerText = `${w}x${h} (original ${realW}x${realH})`;
+    	sizeOut.innerText = `${w}×${h} (original ${realW}×${realH})`;
     }
     
     if (!allowGiantImage && w * h > 100000) {

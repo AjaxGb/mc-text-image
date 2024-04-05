@@ -2,9 +2,10 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
         <title>Minecraft Text Image Generator</title>
-        <link rel="stylesheet" href="style.css?v=0">
-        <script defer src="text-image.js?v=0"></script>
+        <link rel="stylesheet" href="style.css?v=1">
+        <script defer src="text-image.js?v=1"></script>
     </head>
     <body>
         <div>
@@ -12,33 +13,64 @@
             <input id="image-input" type="file" accept="image/*">
         </div>
         <div class="settings">
-            <span class="aside">Leave width/height blank or 0 to use original image size</span>
-            <br>
-            <label>Width: <input id="width" type="number" min="0" value="60"></label>
-            <label>Height: <input id="height" type="number" min="0" value="100"></label>
-            <br>
-            <label>Ratio:
-                <select id="ratio">
-                    <option value="">Ignore image ratio</option>
-                    <option value="keep">Keep original image ratio</option>
-                    <option value="font" selected>Adjust for Minecraft font "pixels"</option>
-                </select>
-            </label>
-            <br>
-            <label>Image Scaling:
-                <select id="smoothing">
-                    <option value="">No smoothing</option>
-                    <option value="low" selected>Smoothing, low quality</option>
-                    <option value="medium">Smoothing, medium quality</option>
-                    <option value="high">Smoothing, high quality</option>
-                </select>
-            </label> (Not supported in all browsers)
-            <br>
-            <label>Transparency cutoff: <input id="transparency-cutoff" type="range" min="0" value="127" max="256"></label>
-            <br>
-            <label>Strip trailing spaces: <input id="strip-space" type="checkbox" checked></label>
-            <br>
-            <label>Output NBT string: <input id="snbt" type="checkbox"></label>
+            <div class="setting help-owner">
+                <label>Width: <input id="width" type="number" min="0" value="60"></label>
+                <label>Height: <input id="height" type="number" min="0" value="100"></label>
+                <div class="help-tooltip">
+                    Leave width/height blank or 0 to use the original image size.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>
+                    Ratio:
+                    <select id="ratio">
+                        <option value="">Ignore image ratio</option>
+                        <option value="keep">Keep original image ratio</option>
+                        <option value="font" selected>Adjust for Minecraft font "pixels"</option>
+                    </select>
+                </label>
+                <div class="help-tooltip">
+                    "Keep original" looks best if you scale the text display's height by
+                    0.55555... to get square pixels.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>
+                    Image Scaling:
+                    <select id="smoothing">
+                        <option value="">Pixelated</option>
+                        <option value="low" selected>Smooth, low quality</option>
+                        <option value="medium">Smooth, medium quality</option>
+                        <option value="high">Smooth, high quality</option>
+                    </select>
+                </label>
+                <div class="help-tooltip">
+                    Not supported in all browsers.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>
+                    Transparency cutoff:
+                    <input id="transparency-cutoff" type="range" min="0" value="127" max="256">
+                </label>
+                <div class="help-tooltip">
+                    How transparent can a pixel be and still show up in the output?
+                    <br>
+                    Helpful if your input image has soft edges.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>Strip trailing spaces: <input id="strip-space" type="checkbox" checked></label>
+                <div class="help-tooltip">
+                    This makes the command shorter, but only works with left-aligned text.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>Output NBT string: <input id="snbt" type="checkbox"></label>
+                <div class="help-tooltip">
+                    Wraps the JSON output in an SNBT string.
+                </div>
+            </div>
         </div>
         <div class="output">
             <textarea id="json-out" readonly rows="3" cols="50"></textarea>

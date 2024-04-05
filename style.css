@@ -1,7 +1,7 @@
 body {
     display: flex;
     flex-direction: column;
-    line-height: 1.5;
+    line-height: 1.6;
     font-family: Arial, sans-serif;
     font-size: 15px;
 }
@@ -20,12 +20,42 @@ body > div {
     border: 1px solid rgba(0, 0, 0, 50%);
     padding: 5px 10px;
     border-radius: 10px;
+    
+    width: 25em;
 }
 
-.aside {
+.setting {
+    position: relative;
+    margin: 0;
+    padding: 3px 0;
+}
+
+.help-tooltip {
+    display: none;
+    position: absolute;
+    left: -15px;
+    margin-top: 1px;
+    z-index: 1;
     font-style: italic;
     font-size: 85%;
-    color: rgba(0, 0, 0, 75%);
+    color: rgba(0, 0, 0, 85%);
+
+    border: 1px solid rgba(0, 0, 0, 50%);
+    background-color: rgba(255, 255, 255, 95%);
+    pointer-events: none;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.help-owner:hover .help-tooltip {
+    display: block;
+}
+
+@media not (any-hover: hover) {
+    .help-owner:active .help-tooltip,
+    .help-owner:focus-within .help-tooltip {
+        display: block;
+    }
 }
 
 label {
