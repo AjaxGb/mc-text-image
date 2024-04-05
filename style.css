@@ -1,0 +1,75 @@
+body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.5;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+}
+
+div {
+    display: block;
+    margin: 5px 0;
+}
+
+body > div {
+    margin: 5px auto;
+}
+
+.settings {
+    display: inline-block;
+    border: 1px solid rgba(0, 0, 0, 50%);
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.aside {
+    font-style: italic;
+    font-size: 85%;
+    color: rgba(0, 0, 0, 75%);
+}
+
+label {
+    margin-right: 5px;
+}
+
+input[type="number"] {
+    width: 6em;
+}
+
+input[type="range"] {
+    height: 10px;
+    transform: translateY(2px);
+}
+
+body .output {
+    display: none;
+}
+
+body.image-loaded .output {
+    display: block;
+}
+
+#json-out {
+    display: block;
+}
+
+#canvas-wrapper {
+    position: relative;
+}
+
+#canvas {
+    display: block;
+    border: 1px solid black;
+    background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%), linear-gradient(0deg, white 0%, white 100%);
+    background-size: 10px 10px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+}
+
+#canvas-outline {
+    position: absolute;
+    border: 1px solid red;
+    z-index: -1;
+    margin: 0;
+    top: 0;
+    left: 0;
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Minecraft Text Image Generator</title>
+        <link rel="stylesheet" href="style.css?v=0">
+        <script defer src="text-image.js?v=0"></script>
+    </head>
+    <body>
+        <div>
+            <h2>Minecraft Text Image Generator</h2>
+            <input id="image-input" type="file" accept="image/*">
+        </div>
+        <div class="settings">
+            <span class="aside">Leave width/height blank or 0 to use original image size</span>
+            <br>
+            <label>Width: <input id="width" type="number" min="0" value="60"></label>
+            <label>Height: <input id="height" type="number" min="0" value="100"></label>
+            <br>
+            <label>Ratio:
+                <select id="ratio">
+                    <option value="">Ignore image ratio</option>
+                    <option value="keep">Keep original image ratio</option>
+                    <option value="font" selected>Adjust for Minecraft font "pixels"</option>
+                </select>
+            </label>
+            <br>
+            <label>Image Scaling:
+                <select id="smoothing">
+                    <option value="">No smoothing</option>
+                    <option value="low" selected>Smoothing, low quality</option>
+                    <option value="medium">Smoothing, medium quality</option>
+                    <option value="high">Smoothing, high quality</option>
+                </select>
+            </label> (Not supported in all browsers)
+            <br>
+            <label>Transparency cutoff: <input id="transparency-cutoff" type="range" min="0" value="127" max="256"></label>
+            <br>
+            <label>Strip trailing spaces: <input id="strip-space" type="checkbox" checked></label>
+            <br>
+            <label>Output NBT string: <input id="snbt" type="checkbox"></label>
+        </div>
+        <div class="output">
+            <textarea id="json-out" readonly rows="3" cols="50"></textarea>
+        </div>
+        <div id="size-out" class="output"></div>
+        <div id="canvas-wrapper" class="output">
+            <div id="canvas-outline"></div>
+            <canvas id="canvas"></canvas>
+        </div>
+    </body>
+</html>
