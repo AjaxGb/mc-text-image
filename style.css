@@ -58,6 +58,10 @@ body > div {
     }
 }
 
+code {
+    font-style: normal;
+}
+
 label {
     margin-right: 5px;
 }

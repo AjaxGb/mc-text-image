@@ -1,11 +1,12 @@
 const imageInput = document.getElementById('image-input');
 const widthIn = document.getElementById('width');
 const heightIn = document.getElementById('height');
-const ratioIn = document.getElementById('ratio');
+const keepRatio = document.getElementById('keep-ratio');
+const pixelShape = document.getElementById('pixel-shape');
 const smoothing = document.getElementById('smoothing');
 const transpCutoff = document.getElementById('transparency-cutoff');
 const stripSpace = document.getElementById('strip-space');
-const output = document.getElementById('output');
+const outputType = document.getElementById('output-type');
 
 const jsonOut = document.getElementById('json-out');
 const sizeOut = document.getElementById('size-out');
@@ -37,12 +38,44 @@ imageLoader.addEventListener('load', e => {
     updateOutput();
 });
 
-widthIn.addEventListener('input', updateOutput);
-heightIn.addEventListener('input', updateOutput);
-ratioIn.addEventListener('change', updateOutput);
-smoothing.addEventListener('input', updateOutput);
-transpCutoff.addEventListener('change', updateOutput);
-output.addEventListener('change', updateOutput);
+for (const el of [
+    widthIn, heightIn, pixelShape, smoothing,
+    transpCutoff, stripSpace, outputType,
+]) {
+    el.addEventListener('change', updateOutput);
+}
+
+keepRatio.addEventListener('change', () => {
+    if (!keepRatio.checked && flagsEl.classList.contains('image-loaded')) {
+        // Changed to absolute sizing while image was loaded
+        const size = calcSize(true);
+        widthIn.value = size.w;
+        heightIn.value = size.unscaledH;
+    }
+    updateOutput();
+});
+
+{
+    const prevInputEventSize = {
+        width: parseSize(widthIn.value),
+        height: parseSize(heightIn.value),
+    };
+
+    function onSizeInput(type, input) {
+        const prevValue = prevInputEventSize[type];
+        const currValue = parseSize(input.value);
+        
+        prevInputEventSize[type] = currValue;
+        
+        if (Math.abs(currValue - prevValue) === 1) {
+            // Probably caused by arrow buttons
+            updateOutput();
+        }
+    }
+    
+    widthIn.addEventListener('input', () => onSizeInput('width', widthIn));
+    heightIn.addEventListener('input', () => onSizeInput('height', heightIn));
+}
 
 let doFullSelect = false;
 jsonOut.addEventListener('mousedown', e => {
@@ -66,7 +99,41 @@ const FONT_RATIO = 1.8;
 
 function parseSize(text) {
 	const parsed = parseInt(text);
-    return (parsed > 0) ? parsed : null;
+    return (parsed > 0) ? parsed : 0;
+}
+
+function calcSize(keepRatio) {
+    const origW = imageLoader.naturalWidth;
+    const origH = imageLoader.naturalHeight;
+    const parsedW = parseSize(widthIn.value);
+    const parsedH = parseSize(heightIn.value);
+    
+    let w = parsedW || origW;
+    let h = parsedH || origH;
+    if (keepRatio) {
+        const originRatio = origW / origH;
+        const currRatio = w / h;
+        
+        if ((currRatio > originRatio) || (origH && !origW)) {
+            // Too wide, or only height was specified
+            // Update width from height
+            w = h * origW / origH;
+        } else {
+            // Update height from width
+            h = w * origH / origW;
+        }
+    }
+    
+    const pixelRatio = (pixelShape.value === 'font') ? 1.8 : 1.0;
+    
+    return {
+        w: Math.round(w),
+        h: Math.round(h / pixelRatio),
+        unscaledH: Math.round(h),
+        origW, origH,
+        controlW: parsedW || w,
+        controlH: Math.round((parsedH || h) / pixelRatio),
+    };
 }
 
 function hexNibble(value) {
@@ -89,56 +156,85 @@ function makeHexColor(pixels, offset, cutoff) {
     }
 }
 
+const SCALED_TRANSFORM = 'transformation:{'
+    + 'scale:[1f,0.5555555f,1f],'
+    + 'left_rotation:[0f,0f,0f,1f],'
+    + 'right_rotation:[0f,0f,0f,1f],'
+    + 'translation:[0f,0f,0f]'
+    + '},';
+
+function jsonToText(json) {
+    let output = JSON.stringify(json);
+    
+    if (outputType.value === 'json') {
+        return output;
+    }
+    
+    // Convert to SNBT
+    output = "'" + output.replace(/\\/g, '\\\\') + "'";
+    
+    if (outputType === 'snbt') {
+        return output;
+    }
+    
+    const align = stripSpace.checked ? '"left"' : '"center"';
+    const trans = (pixelShape.value === 'font') ? '' : SCALED_TRANSFORM;
+    // There doesn't seem to be a limit for "line_width", so just use the maximum NBT integer
+    return `summon text_display ~ ~ ~ {alignment:${align},${trans}line_width:2147483647,text:${output}}`;
+}
+
+const prevSafeInputs = {
+    src: null,
+    w: '60',
+    h: '100',
+    keepRatio: keepRatio.checked,
+    pixelShape: pixelShape.value,
+};
 let allowGiantImage = false;
 
 function updateOutput() {
 	if (!flagsEl.classList.contains('image-loaded')) {
     	return;
     }
-
-    const realW = imageLoader.naturalWidth;
-    const realH = imageLoader.naturalHeight;
-	const parsedW = parseSize(widthIn.value);
-	const parsedH = parseSize(heightIn.value);
-	let w = parsedW || realW;
-	let h = parsedH || realH;
     
-    if (ratioIn.value) {
-        const ratioAdjust = (ratioIn.value === 'font' ? FONT_RATIO : 1.0);
-    	const idealRatio = realW / realH * ratioAdjust;
-        const currRatio = w / h;
-        
-        
-        if ((currRatio > idealRatio) || (realH && !realW)) {
-        	// Too wide, or only height was specified
-            // Update width from height
-            w = Math.round(h / realH * ratioAdjust * realW);
-        } else {
-        	// Update height from width
-            h = Math.round(w / realW / ratioAdjust * realH);
-        }
-    }
+    const {w, h, origW, origH, controlW, controlH} = calcSize(keepRatio.checked);
     
     canvas.width = w;
     canvas.height = h;
-    canvasOutline.style.width = (parsedW || w) + 'px';
-    canvasOutline.style.height = (parsedH || h) + 'px';
-    if (w === realW && h === realH) {
-    	sizeOut.innerText = `${w}×${h}`;
+    if (w === origW && h === origH) {
+        sizeOut.innerText = `${w}×${h}`;
     } else {
-    	sizeOut.innerText = `${w}×${h} (original ${realW}×${realH})`;
+        sizeOut.innerText = `${w}×${h} (original ${origW}×${origH})`;
     }
+    canvasOutline.style.width = controlW + 'px';
+    canvasOutline.style.height = controlH + 'px';
     
     if (!allowGiantImage && w * h > 100000) {
     	const resp = confirm(`You are trying to generate a very large image (${w} x ${h} = ${w * h} pixels), are you sure?`);
         if (!resp) {
-        	widthIn.value = 60;
-            heightIn.value = 100;
+            if (prevSafeInputs.src !== imageLoader.src) {
+                // Bigness caused by new image
+                widthIn.value = 60;
+                heightIn.value = 100;
+            } else {
+                // Bigness caused by change to inputs
+                widthIn.value = prevSafeInputs.w;
+                heightIn.value = prevSafeInputs.h;
+                keepRatio.checked = prevSafeInputs.keepRatio;
+                pixelShape.value = prevSafeInputs.pixelShape;
+            }
             updateOutput();
             return;
         } else {
         	allowGiantImage = true;
         }
+    }
+    if (!allowGiantImage) {
+        prevSafeInputs.src = imageLoader.src;
+        prevSafeInputs.w = widthIn.value;
+        prevSafeInputs.h = heightIn.value;
+        prevSafeInputs.keepRatio = keepRatio.checked;
+        prevSafeInputs.pixelShape = pixelShape.value;
     }
     
     if (smoothing.value) {
@@ -186,17 +282,7 @@ function updateOutput() {
     // Apply transparency cutoff to preview
     ctx.putImageData(imageData, 0, 0);
     
-    let outputText = JSON.stringify(json);
-    if (output.value === 'snbt') {
-    	outputText = "'" + outputText.replace(/\\/g, '\\\\') + "'";
-    } else if (output.value.startsWith('summon-')) {
-        // alignment:"center" is the default value, however it's required in 1.20.4 to prevent the error "Display entityNot a string"
-        // There doesn't seem to be a limit for "line_width", so just use the Java Integer maximum
-    	outputText = 'summon text_display ~ ~ ~ {alignment:"center",line_width:2147483647,' +
-            (output.value === 'summon-scaled' ? 'transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[1f,0.555555f,1f]},' : '') +
-            'text:\'' + outputText.replace(/\\/g, '\\\\') + '\'}';
-    }
-    jsonOut.value = outputText;
+    jsonOut.value = jsonToText(json);
 }
 
 function findImageTransfer(data) {

@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
         <title>Minecraft Text Image Generator</title>
-        <link rel="stylesheet" href="style.css?v=2">
-        <script defer src="text-image.js?v=1"></script>
+        <link rel="stylesheet" href="style.css?v=3">
+        <script defer src="text-image.js?v=2"></script>
     </head>
     <body>
         <div>
@@ -22,16 +22,26 @@
             </div>
             <div class="setting help-owner">
                 <label>
-                    Ratio:
-                    <select id="ratio">
-                        <option value="">Ignore image ratio</option>
-                        <option value="keep">Keep original image ratio</option>
-                        <option value="font" selected>Adjust for Minecraft font "pixels"</option>
+                    Keep aspect ratio: <input id="keep-ratio" type="checkbox" checked>
+                </label>
+                <div class="help-tooltip">
+                    Avoid stretching the image when rescaling it.
+                </div>
+            </div>
+            <div class="setting help-owner">
+                <label>
+                    Pixel shape:
+                    <select id="pixel-shape">
+                        <option value="square">Square</option>
+                        <option value="font" selected>Minecraft font</option>
                     </select>
                 </label>
                 <div class="help-tooltip">
-                    "Keep original" looks best if you scale the text display's height by
-                    0.55555... to get square pixels.
+                    The symbols in Minecraft's font are 1.8 times taller than they are wide.
+                    <br>
+                    <b>Square</b> assumes you will scale the text display entity's height by 0.55555 to compensate.
+                    <br>
+                    <b>Minecraft font</b> scales the input image's height by 0.55555 to compensate.
                 </div>
             </div>
             <div class="setting help-owner">
@@ -68,15 +78,14 @@
             <div class="setting help-owner">
                 <label>
                     Output:
-                    <select id="output">
-                        <option value="json" selected>JSON</option>
+                    <select id="output-type">
+                        <option value="json" selected>JSON text</option>
                         <option value="snbt">SNBT string</option>
-                        <option value="summon-scaled">/summon command (scaled height)</option>
-                        <option value="summon-unscaled">/summon command (unscaled)</option>
+                        <option value="summon">/summon command</option>
                     </select>
                 </label>
                 <div class="help-tooltip">
-                    Wraps the JSON output in an SNBT string.
+                    Wraps the JSON output in an SNBT string or <code>/summon</code> command.
                 </div>
             </div>
         </div>
