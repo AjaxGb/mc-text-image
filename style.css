@@ -121,6 +121,7 @@ body .non-summon-only-text {
     margin-top: 10px;
     border-radius: 10px;
     width: 50em;
+    max-width: 100%;
 }
 
 #json-out {
