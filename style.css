@@ -101,13 +101,20 @@ input[type="range"] {
 }
 
 body .output,
-body.image-loaded .no-output {
+body.image-loaded .no-output,
+body .summon-only-text,
+body.output-type-summon .non-summon-only-text {
     display: none;
 }
 
 body.image-loaded .output,
 body .no-output {
     display: block;
+}
+
+body.output-type-summon .summon-only-text,
+body .non-summon-only-text {
+    display: inline;
 }
 
 .example-image {
