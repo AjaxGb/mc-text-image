@@ -32,8 +32,8 @@
                 <label>
                     Pixel shape:
                     <select id="pixel-shape">
-                        <option value="square">Square</option>
-                        <option value="font" selected>Minecraft font</option>
+                        <option value="square" selected>Square</option>
+                        <option value="font">Minecraft font</option>
                     </select>
                 </label>
                 <div class="help-tooltip">
@@ -79,13 +79,13 @@
                 <label>
                     Output:
                     <select id="output-type">
-                        <option value="json" selected>JSON text</option>
+                        <option value="json">JSON text</option>
                         <option value="snbt">SNBT string</option>
-                        <option value="summon">/summon command</option>
+                        <option value="summon" selected>/summon command</option>
                     </select>
                 </label>
                 <div class="help-tooltip">
-                    Wraps the JSON output in an SNBT string or <code>/summon</code> command.
+                    Wraps the JSON output in an SNBT string or build a <code>/summon</code> command.
                 </div>
             </div>
             <div class="setting help-owner summon-only">
@@ -102,7 +102,7 @@
             <div class="setting help-owner summon-only">
                 <label>Fill gaps: <input id="fill-gaps" type="checkbox"></label>
                 <div class="help-tooltip">
-                    Generates four display entities instead of one,
+                    Summons four display entities instead of one,
                     with offsets to cover the gaps between characters.
                     <br>
                     The offsets are in the display transform, so you can
