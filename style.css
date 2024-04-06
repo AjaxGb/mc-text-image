@@ -88,6 +88,10 @@ input[type="range"] {
     transition: max-height 0.1s, padding 0.1s, opacity 0.1s;
 }
 
+.no-transition .summon-only {
+    transition: none;
+}
+
 .output-type-summon .summon-only {
     max-height: 2em;
     padding: 3px 0;

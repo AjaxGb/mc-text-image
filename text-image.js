@@ -127,6 +127,8 @@ keepRatio.addEventListener('change', () => {
 {
     let currOutputTypeFlag = 'output-type-' + outputType.value;
     flagsEl.classList.add(currOutputTypeFlag);
+    // Do not play animation when page loads
+    setTimeout(() => flagsEl.classList.remove('no-transition'), 0);
     
     outputType.addEventListener('change', () => {
         flagsEl.classList.remove(currOutputTypeFlag);
