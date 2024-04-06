@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -13,6 +17,12 @@ div {
 
 body > div {
     margin: 5px auto;
+    flex: none;
+}
+
+h2 {
+    text-align: center;
+    margin-top: clamp(0px, calc((100vw - 25rem) / 2), 25px);
 }
 
 .settings {
@@ -20,8 +30,8 @@ body > div {
     border: 1px solid rgba(0, 0, 0, 50%);
     padding: 5px 10px;
     border-radius: 10px;
-    
     width: 25em;
+    max-width: 100%;
 }
 
 .setting {
@@ -51,7 +61,7 @@ body > div {
     display: block;
 }
 
-@media not (any-hover: hover) {
+@media (any-hover: none) {
     .help-owner:active .help-tooltip,
     .help-owner:focus-within .help-tooltip {
         display: block;
@@ -68,6 +78,10 @@ label {
 
 input:invalid {
     background-color: rgb(255, 200, 200);
+}
+
+input[type="file"] {
+    width: 100%;
 }
 
 input[type="text"],
@@ -125,7 +139,7 @@ body .non-summon-only-text {
 }
 
 #json-out {
-    display: block;
+    width: 100%;
 }
 
 #canvas-wrapper {
@@ -143,6 +157,7 @@ body .non-summon-only-text {
 
 #canvas-outline {
     position: absolute;
+    box-sizing: content-box;
     border: 1px solid red;
     z-index: -1;
     margin: 0;
