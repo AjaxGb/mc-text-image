@@ -5,7 +5,7 @@ const ratioIn = document.getElementById('ratio');
 const smoothing = document.getElementById('smoothing');
 const transpCutoff = document.getElementById('transparency-cutoff');
 const stripSpace = document.getElementById('strip-space');
-const snbt = document.getElementById('snbt');
+const output = document.getElementById('output');
 
 const jsonOut = document.getElementById('json-out');
 const sizeOut = document.getElementById('size-out');
@@ -42,7 +42,7 @@ heightIn.addEventListener('input', updateOutput);
 ratioIn.addEventListener('change', updateOutput);
 smoothing.addEventListener('input', updateOutput);
 transpCutoff.addEventListener('change', updateOutput);
-snbt.addEventListener('change', updateOutput);
+output.addEventListener('change', updateOutput);
 
 let doFullSelect = false;
 jsonOut.addEventListener('mousedown', e => {
@@ -187,8 +187,14 @@ function updateOutput() {
     ctx.putImageData(imageData, 0, 0);
     
     let outputText = JSON.stringify(json);
-    if (snbt.checked) {
+    if (output.value === 'snbt') {
     	outputText = "'" + outputText.replace(/\\/g, '\\\\') + "'";
+    } else if (output.value.startsWith('summon-')) {
+        // alignment:"center" is the default value, however it's required in 1.20.4 to prevent the error "Display entityNot a string"
+        // There doesn't seem to be a limit for "line_width", so just use the Java Integer maximum
+    	outputText = 'summon text_display ~ ~ ~ {alignment:"center",line_width:2147483647,' +
+            (output.value === 'summon-scaled' ? 'transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[1f,0.555555f,1f]},' : '') +
+            'text:\'' + outputText.replace(/\\/g, '\\\\') + '\'}';
     }
     jsonOut.value = outputText;
 }

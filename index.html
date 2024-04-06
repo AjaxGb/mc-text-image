@@ -66,7 +66,15 @@
                 </div>
             </div>
             <div class="setting help-owner">
-                <label>Output NBT string: <input id="snbt" type="checkbox"></label>
+                <label>
+                    Output:
+                    <select id="output">
+                        <option value="json" selected>JSON</option>
+                        <option value="snbt">SNBT string</option>
+                        <option value="summon-scaled">/summon command (scaled height)</option>
+                        <option value="summon-unscaled">/summon command (unscaled)</option>
+                    </select>
+                </label>
                 <div class="help-tooltip">
                     Wraps the JSON output in an SNBT string.
                 </div>
