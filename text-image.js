@@ -7,6 +7,8 @@ const smoothing = document.getElementById('smoothing');
 const transpCutoff = document.getElementById('transparency-cutoff');
 const stripSpace = document.getElementById('strip-space');
 const outputType = document.getElementById('output-type');
+const summonScale = document.getElementById('summon-scale');
+const fillGaps = document.getElementById('fill-gaps');
 
 const jsonOut = document.getElementById('json-out');
 const sizeOut = document.getElementById('size-out');
@@ -19,6 +21,12 @@ const ctx = canvas.getContext('2d');
 
 const imageLoader = new Image();
 
+
+///////////////////////// EVENT LISTENERS /////////////////////////
+
+
+// Image file select
+
 function loadImage(imageFile) {
     const prevSrc = imageLoader.src;
     flagsEl.classList.remove('image-loaded');
@@ -28,22 +36,60 @@ function loadImage(imageFile) {
     }
 }
 
+imageInput.addEventListener('change', e => {
+    loadImage(imageInput.files[0]);
+});
+
+// Image paste or drag-and-drop
+
+function findImageTransfer(data) {
+    for (const item of data.items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            return item.getAsFile();
+        }
+    }
+    return null;
+}
+
+window.addEventListener('paste', e => {
+    const image = findImageTransfer(e.clipboardData);
+    if (image) {
+        e.preventDefault();
+        imageInput.value = '';
+        loadImage(image);
+    }
+});
+
+window.addEventListener('dragover', e => {
+    const image = findImageTransfer(e.dataTransfer);
+    if (image) {
+        e.preventDefault();
+    }
+});
+
+window.addEventListener('drop', e => {
+    const image = findImageTransfer(e.dataTransfer);
+    if (image) {
+        e.preventDefault();
+        imageInput.value = '';
+        loadImage(image);
+    }
+});
+
+// Image loading
+
 imageLoader.addEventListener('error', e => {
     flagsEl.classList.remove('image-loaded');
     console.error('Failed to load image:', e);
     alert('Failed to load image!');
 });
+
 imageLoader.addEventListener('load', e => {
     flagsEl.classList.add('image-loaded');
     updateOutput();
 });
 
-for (const el of [
-    widthIn, heightIn, pixelShape, smoothing,
-    transpCutoff, stripSpace, outputType,
-]) {
-    el.addEventListener('change', updateOutput);
-}
+// Settings
 
 keepRatio.addEventListener('change', () => {
     if (!keepRatio.checked && flagsEl.classList.contains('image-loaded')) {
@@ -56,6 +102,8 @@ keepRatio.addEventListener('change', () => {
 });
 
 {
+    const ONLY_DIGITS = /^\d+$/;
+    
     const prevInputEventSize = {
         width: parseSize(widthIn.value),
         height: parseSize(heightIn.value),
@@ -67,26 +115,54 @@ keepRatio.addEventListener('change', () => {
         
         prevInputEventSize[type] = currValue;
         
-        if (Math.abs(currValue - prevValue) === 1) {
+        if (ONLY_DIGITS.test(input.value) && Math.abs(currValue - prevValue) === 1) {
             // Probably caused by arrow buttons
             updateOutput();
         }
     }
-    
     widthIn.addEventListener('input', () => onSizeInput('width', widthIn));
     heightIn.addEventListener('input', () => onSizeInput('height', heightIn));
 }
 
+{
+    let currOutputTypeFlag = 'output-type-' + outputType.value;
+    flagsEl.classList.add(currOutputTypeFlag);
+    
+    outputType.addEventListener('change', () => {
+        flagsEl.classList.remove(currOutputTypeFlag);
+        currOutputTypeFlag = 'output-type-' + outputType.value;
+        flagsEl.classList.add(currOutputTypeFlag);
+        updateOutput();
+    });
+}
+
+summonScale.addEventListener('input', updateOutput);
+
+for (const el of [
+    widthIn, heightIn, pixelShape, smoothing,
+    transpCutoff, stripSpace, fillGaps,
+]) {
+    el.addEventListener('change', updateOutput);
+}
+
+// Output textarea auto-select
+
 let doFullSelect = false;
+
 jsonOut.addEventListener('mousedown', e => {
     doFullSelect = e.button === 0 && !e.altKey && document.activeElement !== jsonOut;
 });
+
 jsonOut.addEventListener('click', e => {
     if (e.button === 0 && !e.altKey && doFullSelect) {
         jsonOut.focus();
         jsonOut.select();
     }
 });
+
+
+///////////////////////// IMAGE GENERATION /////////////////////////
+
 
 // Chosen to have the same width in Minecraft text.
 // Minecraft's font has very stupid character widths,
@@ -124,7 +200,7 @@ function calcSize(keepRatio) {
         }
     }
     
-    const pixelRatio = (pixelShape.value === 'font') ? 1.8 : 1.0;
+    const pixelRatio = (pixelShape.value === 'font') ? FONT_RATIO : 1.0;
     
     return {
         w: Math.round(w),
@@ -156,13 +232,6 @@ function makeHexColor(pixels, offset, cutoff) {
     }
 }
 
-const SCALED_TRANSFORM = 'transformation:{'
-    + 'scale:[1f,0.5555555f,1f],'
-    + 'left_rotation:[0f,0f,0f,1f],'
-    + 'right_rotation:[0f,0f,0f,1f],'
-    + 'translation:[0f,0f,0f]'
-    + '},';
-
 function jsonToText(json) {
     let output = JSON.stringify(json);
     
@@ -177,15 +246,37 @@ function jsonToText(json) {
         return output;
     }
     
+    const inputScale = parseFloat(summonScale.value);
+    const scaleX = Number.isFinite(inputScale) ? inputScale : 1.0;
+    const adjustRatio = (pixelShape.value === 'font') ? 1.0 : FONT_RATIO;
+    const scaleY = scaleX / adjustRatio;
+    
     const align = stripSpace.checked ? '"left"' : '"center"';
-    const trans = (pixelShape.value === 'font') ? '' : SCALED_TRANSFORM;
     // There doesn't seem to be a limit for "line_width", so just use the maximum NBT integer
-    return `summon text_display ~ ~ ~ {alignment:${align},${trans}line_width:2147483647,text:${output}}`;
+    const commandPrefix = `summon minecraft:text_display ~ ~ ~ {alignment:${align},transformation:{scale:[${scaleX}f,${scaleY}f,1f],translation:[`;
+    const commandSuffix = `,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]},line_width:2147483647,background:0,text:${output}}`;
+    
+    let offsets = ['0f,0f'];
+    
+    if (fillGaps.checked) {
+        const offsetX = 0.025 * scaleX;
+        const offsetY = 0.0756 * scaleY;
+        offsets = [
+            `0f,0f`,
+            `0f,${offsetY}f`,
+            `${offsetX}f,0f`,
+            `${offsetX}f,${offsetY}f`,
+        ];
+    }
+    
+    return offsets
+        .map(offset => commandPrefix + offset + commandSuffix)
+        .join('\n');
 }
 
 const prevSafeInputs = {
     src: null,
-    w: '60',
+    w: '100',
     h: '100',
     keepRatio: keepRatio.checked,
     pixelShape: pixelShape.value,
@@ -214,7 +305,7 @@ function updateOutput() {
         if (!resp) {
             if (prevSafeInputs.src !== imageLoader.src) {
                 // Bigness caused by new image
-                widthIn.value = 60;
+                widthIn.value = 100;
                 heightIn.value = 100;
             } else {
                 // Bigness caused by change to inputs
@@ -285,40 +376,7 @@ function updateOutput() {
     jsonOut.value = jsonToText(json);
 }
 
-function findImageTransfer(data) {
-    for (const item of data.items) {
-        if (item.kind === 'file' && item.type.startsWith('image/')) {
-            return item.getAsFile();
-        }
-    }
-    return null;
-}
-
-imageInput.addEventListener('change', e => {
+if (imageInput.files.length) {
+    // Browser has persisted values through reload
     loadImage(imageInput.files[0]);
-});
-
-window.addEventListener('paste', e => {
-    const image = findImageTransfer(e.clipboardData);
-    if (image) {
-        e.preventDefault();
-        imageInput.value = '';
-        loadImage(image);
-    }
-});
-
-window.addEventListener('dragover', e => {
-    const image = findImageTransfer(e.dataTransfer);
-    if (image) {
-        e.preventDefault();
-    }
-});
-
-window.addEventListener('drop', e => {
-    const image = findImageTransfer(e.dataTransfer);
-    if (image) {
-        e.preventDefault();
-        imageInput.value = '';
-        loadImage(image);
-    }
-});
+}

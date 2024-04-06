@@ -66,6 +66,11 @@ label {
     margin-right: 5px;
 }
 
+input:invalid {
+    background-color: rgb(255, 200, 200);
+}
+
+input[type="text"],
 input[type="number"] {
     width: 6em;
 }
@@ -73,6 +78,22 @@ input[type="number"] {
 input[type="range"] {
     height: 10px;
     transform: translateY(2px);
+}
+
+.summon-only {
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.1s, padding 0.1s, opacity 0.1s;
+}
+
+.output-type-summon .summon-only {
+    max-height: 2em;
+    padding: 3px 0;
+    padding-left: 20px;
+    opacity: 1;
+    overflow: unset;
 }
 
 body .output {

@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
         <title>Minecraft Text Image Generator</title>
-        <link rel="stylesheet" href="style.css?v=3">
-        <script defer src="text-image.js?v=2"></script>
+        <link rel="stylesheet" href="style.css?v=4">
+        <script defer src="text-image.js?v=3"></script>
     </head>
     <body>
         <div>
@@ -14,8 +14,8 @@
         </div>
         <div class="settings">
             <div class="setting help-owner">
-                <label>Width: <input id="width" type="number" min="0" value="60"></label>
-                <label>Height: <input id="height" type="number" min="0" value="100"></label>
+                <label>Width: <input id="width" type="number" value="100" min="0" step="1"></label>
+                <label>Height: <input id="height" type="number" value="100" min="0" step="1"></label>
                 <div class="help-tooltip">
                     Leave width/height blank or 0 to use the original image size.
                 </div>
@@ -86,6 +86,28 @@
                 </label>
                 <div class="help-tooltip">
                     Wraps the JSON output in an SNBT string or <code>/summon</code> command.
+                </div>
+            </div>
+            <div class="setting help-owner summon-only">
+                <label>
+                    Display entity scale:
+                    <input id="summon-scale" type="text" value="1.0"
+                        placeholder="1.0" inputmode="decimal"
+                        pattern="^(\d+\.?|\d*\.\d+)$">
+                </label>
+                <div class="help-tooltip">
+                    Scales the summoned display entity up or down.
+                </div>
+            </div>
+            <div class="setting help-owner summon-only">
+                <label>Fill gaps: <input id="fill-gaps" type="checkbox"></label>
+                <div class="help-tooltip">
+                    Generates four display entities instead of one,
+                    with offsets to cover the gaps between characters.
+                    <br>
+                    The offsets are in the display transform, so you can
+                    move the group by teleporting all four entities to
+                    the same location and rotation.
                 </div>
             </div>
         </div>
