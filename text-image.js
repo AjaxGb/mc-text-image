@@ -20,17 +20,17 @@ const ctx = canvas.getContext('2d');
 const imageLoader = new Image();
 
 function loadImage(imageFile) {
-	const prevSrc = imageLoader.src;
+    const prevSrc = imageLoader.src;
     flagsEl.classList.remove('image-loaded');
     imageLoader.src = URL.createObjectURL(imageFile);
-	if (prevSrc) {
-    	URL.revokeObjectURL(prevSrc);
+    if (prevSrc) {
+        URL.revokeObjectURL(prevSrc);
     }
 }
 
 imageLoader.addEventListener('error', e => {
     flagsEl.classList.remove('image-loaded');
-	console.error('Failed to load image:', e);
+    console.error('Failed to load image:', e);
     alert('Failed to load image!');
 });
 imageLoader.addEventListener('load', e => {
@@ -79,11 +79,11 @@ keepRatio.addEventListener('change', () => {
 
 let doFullSelect = false;
 jsonOut.addEventListener('mousedown', e => {
-	doFullSelect = e.button === 0 && !e.altKey && document.activeElement !== jsonOut;
+    doFullSelect = e.button === 0 && !e.altKey && document.activeElement !== jsonOut;
 });
 jsonOut.addEventListener('click', e => {
-	if (e.button === 0 && !e.altKey && doFullSelect) {
-    	jsonOut.focus();
+    if (e.button === 0 && !e.altKey && doFullSelect) {
+        jsonOut.focus();
         jsonOut.select();
     }
 });
@@ -98,7 +98,7 @@ const TRAILING_SPACE = new RegExp(SPACE_CHAR + '+$');
 const FONT_RATIO = 1.8;
 
 function parseSize(text) {
-	const parsed = parseInt(text);
+    const parsed = parseInt(text);
     return (parsed > 0) ? parsed : 0;
 }
 
@@ -137,17 +137,17 @@ function calcSize(keepRatio) {
 }
 
 function hexNibble(value) {
-	return value.toString(16).padStart(2, '0');
+    return value.toString(16).padStart(2, '0');
 }
 
 function makeHexColor(pixels, offset, cutoff) {
     const a = pixels[offset + 3];
     if (a < cutoff) {
-    	// Make fully transparent
-    	pixels[offset + 3] = 0;
+        // Make fully transparent
+        pixels[offset + 3] = 0;
         return null;
     } else {
-    	// Make fully opaque
+        // Make fully opaque
         pixels[offset + 3] = 255;
         const r = pixels[offset + 0];
         const g = pixels[offset + 1];
@@ -193,8 +193,8 @@ const prevSafeInputs = {
 let allowGiantImage = false;
 
 function updateOutput() {
-	if (!flagsEl.classList.contains('image-loaded')) {
-    	return;
+    if (!flagsEl.classList.contains('image-loaded')) {
+        return;
     }
     
     const {w, h, origW, origH, controlW, controlH} = calcSize(keepRatio.checked);
@@ -210,7 +210,7 @@ function updateOutput() {
     canvasOutline.style.height = controlH + 'px';
     
     if (!allowGiantImage && w * h > 100000) {
-    	const resp = confirm(`You are trying to generate a very large image (${w} x ${h} = ${w * h} pixels), are you sure?`);
+        const resp = confirm(`You are trying to generate a very large image (${w} x ${h} = ${w * h} pixels), are you sure?`);
         if (!resp) {
             if (prevSafeInputs.src !== imageLoader.src) {
                 // Bigness caused by new image
@@ -226,7 +226,7 @@ function updateOutput() {
             updateOutput();
             return;
         } else {
-        	allowGiantImage = true;
+            allowGiantImage = true;
         }
     }
     if (!allowGiantImage) {
@@ -238,10 +238,10 @@ function updateOutput() {
     }
     
     if (smoothing.value) {
-    	ctx.imageSmoothingEnabled = true;
-    	ctx.imageSmoothingQuality = smoothing.value;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = smoothing.value;
     } else {
-    	ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
     }
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(imageLoader, 0, 0, w, h);
@@ -253,30 +253,30 @@ function updateOutput() {
     let currColor = null;
     let currText = '';
     for (let x = 0, i = 0; i < pixels.length; x++, i += 4) {
-    	if (x >= w) {
-        	if (stripSpace.checked) {
-        		currText = currText.replace(TRAILING_SPACE, '');
+        if (x >= w) {
+            if (stripSpace.checked) {
+                currText = currText.replace(TRAILING_SPACE, '');
             }
             currText += '\n';
-        	x = 0;
+            x = 0;
         }
         const newColor = makeHexColor(pixels, i, cutoff);
         if (currColor && newColor && currColor != newColor) {
-        	json.push({text: currText, color: currColor});
+            json.push({text: currText, color: currColor});
             currText = '';
         }
         if (newColor) {
-        	currColor = newColor;
+            currColor = newColor;
             currText += BLOCK_CHAR;
         } else {
-        	currText += SPACE_CHAR;
+            currText += SPACE_CHAR;
         }
     }
     if (stripSpace.checked) {
         currText = currText.replace(TRAILING_SPACE, '');
     }
     if (currText && currColor) {
-    	json.push({text: currText, color: currColor});
+        json.push({text: currText, color: currColor});
     }
     
     // Apply transparency cutoff to preview
@@ -286,38 +286,38 @@ function updateOutput() {
 }
 
 function findImageTransfer(data) {
-	for (const item of data.items) {
-    	if (item.kind === 'file' && item.type.startsWith('image/')) {
-        	return item.getAsFile();
+    for (const item of data.items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            return item.getAsFile();
         }
     }
     return null;
 }
 
 imageInput.addEventListener('change', e => {
-	loadImage(imageInput.files[0]);
+    loadImage(imageInput.files[0]);
 });
 
 window.addEventListener('paste', e => {
-	const image = findImageTransfer(e.clipboardData);
+    const image = findImageTransfer(e.clipboardData);
     if (image) {
-    	e.preventDefault();
+        e.preventDefault();
         imageInput.value = '';
         loadImage(image);
     }
 });
 
 window.addEventListener('dragover', e => {
-	const image = findImageTransfer(e.dataTransfer);
+    const image = findImageTransfer(e.dataTransfer);
     if (image) {
-    	e.preventDefault();
+        e.preventDefault();
     }
 });
 
 window.addEventListener('drop', e => {
-	const image = findImageTransfer(e.dataTransfer);
+    const image = findImageTransfer(e.dataTransfer);
     if (image) {
-    	e.preventDefault();
+        e.preventDefault();
         imageInput.value = '';
         loadImage(image);
     }
