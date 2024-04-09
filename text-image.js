@@ -10,6 +10,9 @@ const outputType = document.getElementById('output-type');
 const summonScale = document.getElementById('summon-scale');
 const fillGaps = document.getElementById('fill-gaps');
 
+const lengthOut = document.getElementById('length-out');
+const chatLimit = document.getElementById('chat-limit');
+const cmdBlockLimit = document.getElementById('cmd-block-limit');
 const jsonOut = document.getElementById('json-out');
 const sizeOut = document.getElementById('size-out');
 const canvas = document.getElementById('canvas');
@@ -238,14 +241,14 @@ function jsonToText(json) {
     let output = JSON.stringify(json);
     
     if (outputType.value === 'json') {
-        return output;
+        return [output];
     }
     
     // Convert to SNBT
     output = "'" + output.replace(/\\/g, '\\\\') + "'";
     
     if (outputType === 'snbt') {
-        return output;
+        return [output];
     }
     
     const inputScale = parseFloat(summonScale.value);
@@ -271,9 +274,7 @@ function jsonToText(json) {
         ];
     }
     
-    return offsets
-        .map(offset => commandPrefix + offset + commandSuffix)
-        .join('\n');
+    return offsets.map(offset => commandPrefix + offset + commandSuffix);
 }
 
 const prevSafeInputs = {
@@ -375,7 +376,25 @@ function updateOutput() {
     // Apply transparency cutoff to preview
     ctx.putImageData(imageData, 0, 0);
     
-    jsonOut.value = jsonToText(json);
+    const texts = jsonToText(json);
+    
+    let maxLength = 0;
+    for (const text of texts) {
+        if (text.length > maxLength) maxLength = text.length;
+    }
+    const maxLengthText = maxLength.toLocaleString();
+    
+    if (texts.length === 1) {
+        lengthOut.innerText = `${maxLengthText} chars`;
+    } else {
+        lengthOut.innerText =
+            `${texts.length} commands, longest ${maxLengthText} chars`;
+    }
+    
+    chatLimit.classList.toggle('yes', maxLength <= 255);
+    cmdBlockLimit.classList.toggle('yes', maxLength <= 32500);
+    
+    jsonOut.value = texts.join('\n');
 }
 
 if (imageInput.files.length) {

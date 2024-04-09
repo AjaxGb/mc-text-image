@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
         <title>Minecraft Text Image Generator</title>
-        <link rel="stylesheet" href="style.css?v=8">
-        <script defer src="text-image.js?v=4"></script>
+        <link rel="stylesheet" href="style.css?v=9">
+        <script defer src="text-image.js?v=5"></script>
     </head>
     <body class="no-transition">
         <div>
@@ -118,10 +118,25 @@
             <img class="example-image" src="example.png"
                 alt="Example screenshot of many variously-sized Susie Deltarunes scattered around a Minecraft village">
         </div>
-        <div class="output">
-            <textarea id="json-out" readonly rows="3" cols="50"></textarea>
+        <div class="output info-above help-owner">
+            <span id="length-out"></span>
+            <span class="nowrap">
+                (<span id="chat-limit" class="yes-no">chat</span>,
+                <span id="cmd-block-limit" class="yes-no">cmd block</span>,
+                <span class="yes-no yes">function</span>)
+            </span>
+            <div class="help-tooltip">
+                Chat is limited to 256 characters, minus 1 for the slash.
+                <br>
+                Command blocks are limited to 32,500 characters.
+                <br>
+                Functions have no character limit.
+            </div>
         </div>
-        <div id="size-out" class="output"></div>
+        <div class="output">
+            <textarea id="json-out" readonly rows="4" cols="50"></textarea>
+        </div>
+        <div id="size-out" class="output info-above"></div>
         <div id="canvas-wrapper" class="output">
             <div id="canvas-outline"></div>
             <canvas id="canvas"></canvas>

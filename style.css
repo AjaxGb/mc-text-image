@@ -30,31 +30,43 @@ h2 {
     border: 1px solid rgba(0, 0, 0, 50%);
     padding: 5px 10px;
     border-radius: 10px;
+}
+
+.settings, .info-above {
     width: 25em;
     max-width: 100%;
 }
 
 .setting {
-    position: relative;
     margin: 0;
     padding: 3px 0;
+}
+
+.help-owner {
+    position: relative;
 }
 
 .help-tooltip {
     display: none;
     position: absolute;
-    left: -15px;
+    left: 15px;
     margin-top: 1px;
     z-index: 1;
     font-style: italic;
     font-size: 85%;
     color: rgba(0, 0, 0, 85%);
+    text-align: left;
+    text-align: start;
 
     border: 1px solid rgba(0, 0, 0, 50%);
     background-color: rgba(255, 255, 255, 95%);
     pointer-events: none;
     padding: 5px 10px;
     border-radius: 10px;
+}
+
+.setting .help-tooltip {
+    left: -15px;
 }
 
 .help-owner:hover .help-tooltip {
@@ -74,6 +86,7 @@ code {
 
 label {
     margin-right: 5px;
+    white-space: nowrap;
 }
 
 input:invalid {
@@ -136,6 +149,30 @@ body .non-summon-only-text {
     border-radius: 10px;
     width: 50em;
     max-width: 100%;
+}
+
+.info-above {
+    margin-bottom: 0;
+    text-align: center;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.yes-no::before {
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+    margin-inline-end: 0.2em;
+    
+    content: "❌︎";
+    color: #f20f0f;
+}
+
+.yes-no.yes::before {
+    content: "✔︎";
+    color: #00ac00;
 }
 
 #json-out {
