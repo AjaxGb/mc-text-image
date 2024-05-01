@@ -247,7 +247,7 @@ function jsonToText(json) {
     // Convert to SNBT
     output = "'" + output.replace(/\\/g, '\\\\') + "'";
     
-    if (outputType === 'snbt') {
+    if (outputType.value === 'snbt') {
         return [output];
     }
     
